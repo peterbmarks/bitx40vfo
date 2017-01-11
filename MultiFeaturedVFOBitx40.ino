@@ -16,14 +16,14 @@ Also stripped out things I don't need for bitx40.
 #include <LiquidCrystal.h>
 
 
-#define F_MIN        7000000UL              // Lower frequency limit
-#define F_MAX        7300000UL             // Upper frequency limit
+#define F_MIN        7000000ULL              // Lower frequency limit
+#define F_MAX        7300000ULL             // Upper frequency limit
 
 #define ENCODER_A    3                      // Encoder pin A
 #define ENCODER_B    2                      // Encoder pin B
 #define ENCODER_BTN  11
 #define LCD_RS		5
-#define LCD_E		        6
+#define LCD_E		  6
 #define LCD_D4		7
 #define LCD_D5		8
 #define LCD_D6		9
@@ -111,14 +111,14 @@ void display_frequency()
   if (f < 10)
     lcd.print(' ');
   lcd.print(f);
-  lcd.print('.');
+  lcd.print(',');
   f = (vfo % 1000000) / 1000;
   if (f < 100)
     lcd.print('0');
   if (f < 10)
     lcd.print('0');
   lcd.print(f);
-  lcd.print('.');
+  lcd.print(',');
   f = vfo % 1000;
   if (f < 100)
     lcd.print('0');
@@ -138,27 +138,26 @@ void display_frequency()
 /**************************************/
 void display_radix()
 {
-  lcd.setCursor(9, 1);
+  lcd.setCursor(6, 1);
   switch (radix)
   {
     case 1:
-      lcd.print("    1");
+      lcd.print("      1");
       break;
     case 10:
-      lcd.print("   10");
+      lcd.print("     10");
       break;
     case 100:
-      lcd.print("  100");
+      lcd.print("    100");
       break;
     case 1000:
-      lcd.print("   1k");
+      lcd.print("  1,000");
       break;
     case 10000:
-      lcd.print("  10k");
+      lcd.print(" 10,000");
       break;
     case 100000:
-      //lcd.setCursor(10, 1);
-      lcd.print(" 100k");
+      lcd.print("100,000");
       break;
       //case 1000000:
       //lcd.setCursor(9, 1);
