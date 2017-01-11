@@ -15,6 +15,7 @@ Also stripped out things I don't need for bitx40.
 #include <Wire.h>
 #include <LiquidCrystal.h>
 
+#define F_CORRECTION 101354ULL      // Adjust for the frequency error
 
 #define F_MIN        7000000ULL              // Lower frequency limit
 #define F_MAX        7300000ULL             // Upper frequency limit
@@ -38,9 +39,9 @@ volatile uint32_t bfo = 1200000000ULL; //start in usb
 //These USB/LSB frequencies are added to or subtracted from the vfo frequency in the "Loop()"
 //In this example my start frequency will be 14.20000 plus 9.001500 or clk0 = 23.2015Mhz
 volatile uint32_t vfo = 710000000ULL / SI5351_FREQ_MULT; //start freq - change to suit
-volatile uint32_t radix = 100;	//start step size - change to suit
+volatile uint32_t radix = 1000;	//start step size - change to suit
 boolean changed_f = 0;
-String tbfo = "";
+String tbfo = "LSB";
 
 //------------------------------- Set Optional Features here --------------------------------------
 //Remove comment (//) from the option you want to use. Pick only one
@@ -175,7 +176,7 @@ void setup()
   lcd.clear();
   Wire.begin();
 
-  si5351.set_correction(0); //**mine. There is a calibration sketch in File/Examples/si5351Arduino-Jason
+  si5351.set_correction(F_CORRECTION); //**mine. There is a calibration sketch in File/Examples/si5351Arduino-Jason
   //where you can determine the correction by using the serial monitor.
 
   //initialize the Si5351
@@ -192,11 +193,6 @@ void setup()
   si5351.set_freq((desired_f * SI5351_FREQ_MULT), SI5351_CLK0);
   volatile uint32_t vfoT = (vfo * SI5351_FREQ_MULT) + bfo;
   tbfo = "LSB";
-  // Set CLK2 to output bfo frequency
-  //si5351.set_freq( bfo, SI5351_CLK2);
-  //si5351.drive_strength(SI5351_CLK0,SI5351_DRIVE_2MA); //you can set this to 2MA, 4MA, 6MA or 8MA
-  //si5351.drive_strength(SI5351_CLK1,SI5351_DRIVE_2MA); //be careful though - measure into 50ohms
-  //si5351.drive_strength(SI5351_CLK2,SI5351_DRIVE_2MA); //
 #endif
 
 #ifdef Direct_conversion
@@ -224,30 +220,11 @@ void loop()
     display_frequency();
 
 #ifdef IF_Offset
+// set the output to 12MHz - vfo for bitx40
   uint32_t desired_f = 12000000ULL - vfo;
   Serial.print("desired f = ");
   Serial.println(desired_f);
   si5351.set_freq((desired_f * SI5351_FREQ_MULT), SI5351_CLK0);
-    //si5351.set_freq((vfo * SI5351_FREQ_MULT) + bfo, SI5351_CLK0);
-    // set the output to 12MHz - vfo for bitx40
-    //si5351.set_freq((12000000ULL - vfo * SI5351_FREQ_MULT), SI5351_CLK0);
-    //you can also subtract the bfo to suit your needs
-    //si5351.set_freq((vfo * SI5351_FREQ_MULT) - bfo  , SI5351_PLL_FIXED, SI5351_CLK0);
-
-    if (vfo >= 10000000ULL & tbfo != "USB")
-    {
-      bfo = USB;
-      tbfo = "USB";
-      //si5351.set_freq( bfo, SI5351_CLK2);
-      Serial.println("We've switched from LSB to USB");
-    }
-    else if (vfo < 10000000ULL & tbfo != "LSB")
-    {
-      bfo = LSB;
-      tbfo = "LSB";
-      //si5351.set_freq( bfo, SI5351_CLK2);
-      Serial.println("We've switched from USB to LSB");
-    }
 #endif
 
 #ifdef Direct_conversion
