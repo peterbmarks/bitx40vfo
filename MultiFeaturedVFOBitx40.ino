@@ -1,13 +1,13 @@
-
-
 /*
+ * I (VK2TPM) got this from AK2B who wrote:
 This entire program is taken from Jason Mildrum, NT7S and Przemek Sadowski, SQ9NJE.
 There is not enough original code written by me to make it worth mentioning.
 http://nt7s.com/
 http://sq9nje.pl/
 http://ak2b.blogspot.com/
 
-Modified by Peter Marks VK2TPM to use the Etherkit version of the si5351 library
+Modified by Peter Marks VK2TPM to use the Etherkit version of the si5351 library.
+Also stripped out things I don't need for bitx40.
 */
 
 #include <Rotary.h>
@@ -16,8 +16,8 @@ Modified by Peter Marks VK2TPM to use the Etherkit version of the si5351 library
 #include <LiquidCrystal.h>
 
 
-#define F_MIN        100000000UL               // Lower frequency limit
-#define F_MAX        5000000000UL
+#define F_MIN        7000000UL              // Lower frequency limit
+#define F_MAX        7300000UL             // Upper frequency limit
 
 #define ENCODER_A    3                      // Encoder pin A
 #define ENCODER_B    2                      // Encoder pin B
@@ -73,10 +73,12 @@ void set_frequency(short dir)
   if (dir == -1)
     vfo -= radix;
 
-  //    if(vfo > F_MAX)
-  //      vfo = F_MAX;
-  //    if(vfo < F_MIN)
-  //      vfo = F_MIN;
+      if(vfo > F_MAX) {
+        vfo = F_MAX;
+      }
+      if(vfo < F_MIN) {
+        vfo = F_MIN;
+      }
 
   changed_f = 1;
 }
